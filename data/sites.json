@@ -1,0 +1,47 @@
+[
+  {
+    "site_id": 1,
+    "engineer_name": "Eng. John Mrema",
+    "site_title": "Foundation Work - Residential Building",
+    "location": "Arusha, Tanzania",
+    "required_handymen": 5,
+    "skills_required": ["Masonry", "Digging", "Steel Fixing"],
+    "dates": {
+      "start": "2025-05-10",
+      "end": "2025-05-25"
+    },
+    "payment_per_day": "20000 TZS",
+    "description": "Looking for skilled handymen to assist with foundation digging, masonry, and steel fixing. The project will last for two weeks.",
+    "posted_at": "2025-05-04T09:00:00Z"
+  },
+  {
+    "site_id": 2,
+    "engineer_name": "Eng. Neema Charles",
+    "site_title": "Roofing Phase - School Project",
+    "location": "Dodoma, Tanzania",
+    "required_handymen": 8,
+    "skills_required": ["Carpentry", "Roof Framing"],
+    "dates": {
+      "start": "2025-05-15",
+      "end": "2025-06-01"
+    },
+    "payment_per_day": "25000 TZS",
+    "description": "Urgently need experienced carpenters to assist with roofing a classroom block.",
+    "posted_at": "2025-05-03T14:30:00Z"
+  },
+  {
+    "site_id": 3,
+    "engineer_name": "Eng. Peter Mwakyembe",
+    "site_title": "Finishing Works - Office Building",
+    "location": "Dar es Salaam, Tanzania",
+    "required_handymen": 6,
+    "skills_required": ["Plastering", "Painting", "Tiling"],
+    "dates": {
+      "start": "2025-05-20",
+      "end": "2025-06-05"
+    },
+    "payment_per_day": "22000 TZS",
+    "description": "Need reliable and detail-oriented workers for finishing works including plastering and painting.",
+    "posted_at": "2025-05-02T11:15:00Z"
+  }
+]
