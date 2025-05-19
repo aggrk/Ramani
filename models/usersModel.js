@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import validator from "validator";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
+import { type } from "os";
 
 const userSchema = mongoose.Schema({
   name: {
@@ -15,7 +16,18 @@ const userSchema = mongoose.Schema({
     required: [true, "Email cannot be empty"],
     validate: [validator.isEmail, "Please enter a valid email"],
   },
-  photo: String,
+  phone: {
+    type: String,
+    required: [true, "Phone number is required"],
+    validate: {
+      validator: function (v) {
+        return /^(\+255|0)[67][0-9]{8}$/.test(v); // Ensures exactly 10 digits
+      },
+      message: (props) =>
+        `${props.value} is not a valid 10-digit phone number!`,
+    },
+  },
+  photo: { type: String, default: "default.jpg" },
   password: {
     type: String,
     minlength: 8,
@@ -48,9 +60,16 @@ const userSchema = mongoose.Schema({
     },
     default: "inactive",
   },
+  verificationToken: String,
+  verificationTokenExpires: Date,
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
+  deletedAt: Date,
+  createdAt: {
+    type: Date,
+    default: Date.now(),
+  },
 });
 
 userSchema.pre("save", async function (next) {
@@ -58,6 +77,13 @@ userSchema.pre("save", async function (next) {
 
   this.password = await bcrypt.hash(this.password, 12);
   this.confirmPassword = undefined;
+  next();
+});
+
+userSchema.pre("save", function (next) {
+  if (!this.isModified("password") || this.isNew) return next();
+
+  this.passwordChangedAt = Date.now() - 1000;
   next();
 });
 
@@ -90,6 +116,29 @@ userSchema.methods.createPasswordResetToken = function () {
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
 
   return resetToken;
+};
+
+userSchema.methods.createVerificationToken = function () {
+  const verificationToken = crypto.randomBytes(32).toString("hex");
+
+  this.verificationToken = crypto
+    .createHash("sha256")
+    .update(verificationToken)
+    .digest("hex");
+
+  this.verificationTokenExpires = Date.now() + 10 * 60 * 1000;
+
+  return verificationToken;
+};
+
+userSchema.methods.addUser = async function () {
+  this.status = "active";
+  return this.save({ validateBeforeSave: false });
+};
+
+userSchema.methods.deleteUser = async function () {
+  this.deletedAt = Date.now();
+  return this.save({ validateBeforeSave: false });
 };
 
 export const User = mongoose.model("User", userSchema);

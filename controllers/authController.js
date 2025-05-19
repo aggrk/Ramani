@@ -38,16 +38,21 @@ export const signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
     name: req.body.name,
     email: req.body.email,
+    phone: req.body.phone,
     password: req.body.password,
     confirmPassword: req.body.confirmPassword,
     role: req.body.role,
   });
+  // 1) Generate verification token
+  const token = newUser.createVerificationToken();
+
+  await newUser.save({ validateBeforeSave: false });
 
   try {
     // 2) Send verification email
     const verificationURL = `${req.protocol}://${req.get(
       "host"
-    )}/api/v1/users/verifyEmail/${newUser._id}`;
+    )}/api/v1/users/verifyEmail/${token}`;
     const message = `Welcome to Ramani, ${newUser.name}! Please verify your email by clicking on the following link: ${verificationURL}`;
 
     await sendEmail({
@@ -55,25 +60,77 @@ export const signup = catchAsync(async (req, res, next) => {
       subject: "Verify Your Email!",
       message,
     });
+
+    res.status(201).json({
+      status: "success",
+      message: "Verification email sent!",
+    });
   } catch (err) {
+    newUser.verificationToken = undefined;
+    newUser.verificationTokenExpires = undefined;
+    await newUser.save({ validateBeforeSave: false });
     return next(new CustomError("There was an error sending the email", 500));
   }
-
-  // createSendToken(newUser, 201, res);
 });
 
 export const verifyEmail = catchAsync(async (req, res, next) => {
-  const user = await User.findById(req.params.id);
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(req.params.token)
+    .digest("hex");
+
+  const user = await User.findOne({
+    verificationToken: hashedToken,
+    verificationTokenExpires: { $gt: Date.now() },
+  });
+
   if (!user) {
-    return next(new CustomError("No user found with this ID", 404));
+    return next(new CustomError("The token is invalid or has expired", 400));
   }
+
   user.status = "active";
+  user.verificationToken = undefined;
+  user.verificationTokenExpires = undefined;
+
   await user.save({ validateBeforeSave: false });
 
-  res.status(200).json({
-    status: "success",
-    message: "Email verified successfully!",
-  });
+  // 3) Log the user in, send JWT
+  createSendToken(user, 200, res);
+});
+
+export const resendVerificationEmail = catchAsync(async (req, res, next) => {
+  // 1) Get user based on posted email
+  const user = await User.findOne({ email: req.body?.email });
+
+  if (!user) {
+    return next(
+      new CustomError("There is no user with this email address", 404)
+    );
+  }
+  // 2) Generate the random verification token
+  const token = user.createVerificationToken();
+  await user.save({ validateBeforeSave: false });
+  // 3) Send it to user's email
+  const verificationURL = `${req.protocol}://${req.get(
+    "host"
+  )}/api/v1/users/verifyEmail/${token}`;
+  const message = `Welcome to Ramani, ${user.name}! Please verify your email by clicking on the following link: ${verificationURL}`;
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: "Verify Your Email!",
+      message,
+    });
+    res.status(200).json({
+      status: "success",
+      message: "Verification email sent!",
+    });
+  } catch (err) {
+    user.verificationToken = undefined;
+    user.verificationTokenExpires = undefined;
+    await user.save({ validateBeforeSave: false });
+    return next(new CustomError("There was an error sending the email", 500));
+  }
 });
 
 export const login = catchAsync(async (req, res, next) => {
@@ -84,6 +141,14 @@ export const login = catchAsync(async (req, res, next) => {
 
   // 1) Check if user exists && password is correct
   const user = await User.findOne({ email }).select("+password");
+
+  if (!user) {
+    return next(new CustomError("Incorrect email or password", 401));
+  }
+  if (user.deletedAt) {
+    return next(new CustomError("This account has been deleted", 401));
+  }
+
   if (user.status === "inactive") {
     return next(new CustomError("Please verify your email first", 401));
   }
@@ -147,7 +212,6 @@ export const protect = catchAsync(async (req, res, next) => {
 
 export const restrictTo = (...roles) => {
   return (req, res, next) => {
-    console.log(req.user);
     if (!roles.includes(req.user.role)) {
       return next(
         new CustomError(
@@ -215,5 +279,30 @@ export const resetPassword = catchAsync(async (req, res, next) => {
   await user.save();
   // 3) Update changedPasswordAt property for the user
   // 4) Log the user in, send JWT
+  createSendToken(user, 200, res);
+});
+
+export const updateMyPassword = catchAsync(async (req, res, next) => {
+  // 1) Get user from collection
+  const user = await User.findById(req.user.id).select("+password");
+
+  // 2) Check if POSTed current password is correct
+  if (!(await user.comparePasswords(req.body.currentPassword, user.password))) {
+    return next(new CustomError("Your current password is wrong", 401));
+  }
+
+  if (req.body.password === req.body.currentPassword) {
+    return next(
+      new CustomError(
+        "New password must be different from current password",
+        401
+      )
+    );
+  }
+  // 3) If so, update password
+  user.password = req.body.password;
+  user.confirmPassword = req.body.confirmPassword;
+  await user.save();
+  // 4) Log user in, send JWT
   createSendToken(user, 200, res);
 });

@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import { readFileSync } from "fs";
-import { Site } from "../models/sitesModel.js";
+import Site from "../models/sitesModel.js";
 
 dotenv.config({ path: "./config.env" });
 const DB = process.env.DATABASE;

@@ -1,4 +1,4 @@
-import { Site } from "../models/sitesModel.js";
+import Site from "../models/sitesModel.js";
 import APIFeatures from "../utils/apiFeatures.js";
 import { CustomError } from "../utils/appError.js";
 import catchAsync from "../utils/catchAsync.js";
@@ -42,7 +42,7 @@ export const getSite = catchAsync(async (req, res, next) => {
 });
 
 export const createSite = catchAsync(async (req, res, next) => {
-  const newSite = await Site.create(req.body);
+  const newSite = await Site.create({ ...req.body, engineerId: req.user._id });
 
   res.status(201).json({
     status: "success",
@@ -62,6 +62,22 @@ export const updateSite = catchAsync(async (req, res, next) => {
   }
   res.status(200).json({
     status: "success",
+    data: {
+      site,
+    },
+  });
+});
+
+export const getSiteByEngineer = catchAsync(async (req, res, next) => {
+  const site = await Site.find({ engineerId: req.user._id });
+
+  if (!site) {
+    return next(new CustomError("No site found with that ID", 404));
+  }
+
+  res.status(200).json({
+    status: "success",
+    results: site.length,
     data: {
       site,
     },

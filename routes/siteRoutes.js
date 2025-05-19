@@ -5,10 +5,21 @@ import {
   getSites,
   updateSite,
   deleteSite,
+  getSiteByEngineer,
 } from "../controllers/siteController.js";
 import { protect, restrictTo } from "../controllers/authController.js";
+import applicationRouter from "./applicationRoutes.js";
 
 export const siteRouter = express.Router();
+
+siteRouter.use("/:siteId/applications", applicationRouter);
+
+siteRouter.get(
+  "/getMySites",
+  protect,
+  restrictTo("engineer"),
+  getSiteByEngineer
+);
 
 siteRouter
   .route("/")

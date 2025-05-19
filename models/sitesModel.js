@@ -11,9 +11,15 @@ const siteSchema = new mongoose.Schema({
     end: { type: Date, required: true },
   },
   payment_per_day: { type: String, required: true },
+  engineerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
   // currency: { type: String, default: "TZS" },
   description: { type: String },
   posted_at: { type: Date, default: Date.now },
 });
 
-export const Site = mongoose.model("Site", siteSchema);
+const Site = mongoose.model("Site", siteSchema);
+export default Site;
