@@ -10,7 +10,7 @@ import {
 import { protect, restrictTo } from "../controllers/authController.js";
 import applicationRouter from "./applicationRoutes.js";
 
-export const siteRouter = express.Router();
+const siteRouter = express.Router();
 
 siteRouter.use("/:siteId/applications", applicationRouter);
 
@@ -24,10 +24,12 @@ siteRouter.get(
 siteRouter
   .route("/")
   .get(protect, getSites)
-  .post(protect, restrictTo("engineer", "admin"), createSite);
+  .post(protect, restrictTo("engineer"), createSite);
 
 siteRouter
   .route("/:id")
   .get(protect, getSite)
-  .patch(protect, restrictTo("engineer", "admin"), updateSite)
-  .delete(protect, restrictTo("admin"), deleteSite);
+  .patch(protect, restrictTo("admin", "engineer"), updateSite)
+  .delete(protect, restrictTo("admin", "engineer"), deleteSite);
+
+export default siteRouter;

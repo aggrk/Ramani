@@ -3,8 +3,8 @@ import { CustomError } from "../utils/appError.js";
 import catchAsync from "../utils/catchAsync.js";
 import jwt from "jsonwebtoken";
 import { promisify } from "util";
-import { sendEmail } from "../utils/email.js";
 import crypto from "crypto";
+import { Email } from "../utils/email.js";
 
 const secretToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -35,40 +35,38 @@ const createSendToken = (user, statusCode, res) => {
 };
 
 export const signup = catchAsync(async (req, res, next) => {
-  const newUser = await User.create({
+  const userData = {
     name: req.body.name,
     email: req.body.email,
     phone: req.body.phone,
     password: req.body.password,
     confirmPassword: req.body.confirmPassword,
     role: req.body.role,
-  });
+  };
+
+  const newUser = new User(userData);
+
   // 1) Generate verification token
   const token = newUser.createVerificationToken();
-
-  await newUser.save({ validateBeforeSave: false });
 
   try {
     // 2) Send verification email
     const verificationURL = `${req.protocol}://${req.get(
       "host"
     )}/api/v1/users/verifyEmail/${token}`;
-    const message = `Welcome to Ramani, ${newUser.name}! Please verify your email by clicking on the following link: ${verificationURL}`;
 
-    await sendEmail({
-      email: newUser.email,
-      subject: "Verify Your Email!",
-      message,
-    });
+    await new Email(newUser, verificationURL).sendWelcome();
+    await newUser.save({ validateBeforeSave: false });
 
     res.status(201).json({
       status: "success",
       message: "Verification email sent!",
     });
   } catch (err) {
-    newUser.verificationToken = undefined;
-    newUser.verificationTokenExpires = undefined;
-    await newUser.save({ validateBeforeSave: false });
+    console.error("Error sending verification email:", err);
+    // newUser.verificationToken = undefined;
+    // newUser.verificationTokenExpires = undefined;
+    // await newUser.save({ validateBeforeSave: false });
     return next(new CustomError("There was an error sending the email", 500));
   }
 });
@@ -116,19 +114,20 @@ export const resendVerificationEmail = catchAsync(async (req, res, next) => {
   )}/api/v1/users/verifyEmail/${token}`;
   const message = `Welcome to Ramani, ${user.name}! Please verify your email by clicking on the following link: ${verificationURL}`;
   try {
-    await sendEmail({
-      email: user.email,
-      subject: "Verify Your Email!",
-      message,
-    });
+    // await sendEmail({
+    //   email: user.email,
+    //   subject: "Verify Your Email!",
+    //   message,
+    // });
+    await new Email(user, verificationURL).sendWelcome();
     res.status(200).json({
       status: "success",
       message: "Verification email sent!",
     });
   } catch (err) {
-    user.verificationToken = undefined;
-    user.verificationTokenExpires = undefined;
-    await user.save({ validateBeforeSave: false });
+    // user.verificationToken = undefined;
+    // user.verificationTokenExpires = undefined;
+    // await user.save({ validateBeforeSave: false });
     return next(new CustomError("There was an error sending the email", 500));
   }
 });
@@ -241,11 +240,13 @@ export const forgotPassword = catchAsync(async (req, res, next) => {
   )}/api/v1/users/resetPassword/${resetToken}`;
   const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm to: ${resetURL}. If you didn't forget your password, please ignore this email!`;
   try {
-    await sendEmail({
-      email: user.email,
-      subject: "Your password reset token (valid for 10 min)",
-      message,
-    });
+    // await sendEmail({
+    //   email: user.email,
+    //   subject: "Your password reset token (valid for 10 min)",
+    //   message,
+    // });
+
+    await new Email(user, resetURL).sendReset();
     res.status(200).json({
       status: "success",
       message: "Token sent to email!",

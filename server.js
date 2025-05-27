@@ -7,6 +7,18 @@ dotenv.config({ path: "./config.env" });
 const DB = process.env.DATABASE;
 const PORT = 8000;
 
-mongoose.connect(DB).then(() => console.log("Connected!"));
+const startServer = async () => {
+  try {
+    await mongoose.connect(DB);
+    console.log("✅ DB connection successful!");
 
-app.listen(PORT, () => console.log(`Listening on port:${PORT}`));
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    console.error("❌ DB connection failed:", error);
+    process.exit(1);
+  }
+};
+
+startServer();

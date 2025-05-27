@@ -46,12 +46,17 @@ applicationRouter.patch(
 
 applicationRouter
   .route("/")
-  .get(protect, conditionalAccess, handleGetApplications)
-  .post(protect, restrictTo("user"), createApplication);
+  .get(protect, conditionalAccess(), handleGetApplications)
+  .post(
+    protect,
+    restrictTo("user"),
+    conditionalAccess(["user"]),
+    createApplication
+  );
 
 applicationRouter
   .route("/:id")
-  .get(protect, conditionalAccess, handleGetApplicationById)
+  .get(protect, conditionalAccess(), handleGetApplicationById)
   .patch(protect, restrictTo("user"), updateApplication)
   .delete(protect, restrictTo("admin", "user"), deleteApplication);
 

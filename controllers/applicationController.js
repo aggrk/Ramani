@@ -2,8 +2,8 @@ import Application from "../models/applicationsModel.js";
 import Site from "../models/sitesModel.js";
 import { CustomError } from "../utils/appError.js";
 import catchAsync from "../utils/catchAsync.js";
-import { sendEmail } from "../utils/email.js";
 import { restrictTo } from "./authController.js";
+import { Email } from "../utils/email.js";
 
 export const getAllApplications = catchAsync(async (req, res, next) => {
   const applications = await Application.find({ deleted: false }).populate(
@@ -90,16 +90,16 @@ export const getApplicationsBySiteId = catchAsync(async (req, res, next) => {
 
 export const createApplication = catchAsync(async (req, res, next) => {
   const totalDocuments = await Application.countDocuments({
-    siteId: req.body.siteId,
+    siteId: req.params.siteId,
     deleted: false,
   });
-  const site = await Site.findById(req.body.siteId);
+  const site = await Site.findById(req.params.siteId);
 
   if (!site) {
     return next(new CustomError("No site found with this ID", 404));
   }
 
-  if (totalDocuments >= site.required_handymen) {
+  if (totalDocuments >= site.requiredHandymen) {
     return next(
       new CustomError(
         "The maximum number of applications for this site has been reached.",
@@ -110,7 +110,7 @@ export const createApplication = catchAsync(async (req, res, next) => {
 
   const existingApplication = await Application.findOne({
     userId: req.user._id,
-    siteId: req.body.siteId,
+    siteId: req.params.siteId,
     deleted: false,
   });
   if (existingApplication) {
@@ -126,7 +126,7 @@ export const createApplication = catchAsync(async (req, res, next) => {
     name: req.user.name,
     email: req.user.email,
     phone: req.user.phone,
-    siteId: req.body.siteId,
+    siteId: req.params.siteId,
     userId: req.user ? req.user._id : null,
   });
 
@@ -192,19 +192,18 @@ export const deleteApplication = catchAsync(async (req, res, next) => {
 
 export const approveAllApplications = catchAsync(async (req, res, next) => {
   const { siteId } = req.params;
-  // 1. Find the site by engineerId
-  const site = await Site.findOne({ _id: siteId });
 
+  const site = await Site.findById(siteId);
   if (!site) {
     return next(new CustomError("No site found for this engineer", 404));
   }
-  if (!site.engineerId.equals(req.user._id)) {
+
+  if (site.engineerId.toString() !== req.user._id.toString()) {
     return next(
       new CustomError("You are not authorized to approve applications", 403)
     );
   }
 
-  // 2. Find all pending applications for this site and populate user info
   const applications = await Application.find({
     siteId,
     status: "pending",
@@ -214,29 +213,24 @@ export const approveAllApplications = catchAsync(async (req, res, next) => {
     return next(new CustomError("No applications pending found", 404));
   }
 
-  // 3. Approve all applications
-  await Application.updateMany(
-    { siteId, status: "pending" },
-    { status: "accepted" }
-  );
-
-  // 4. Notify users
-  await Promise.all(
-    applications.map((application) =>
-      sendEmail({
-        email: application.userId.email,
-        subject: "Application Approved",
-        message: `Dear ${application.userId.name}, your application for site "${site.site_title}" has been approved.`,
+  try {
+    await Promise.all(
+      applications.map(async (application) => {
+        await new Email(application.userId, site).sendApproved();
+        application.status = "accepted";
+        await application.save();
       })
-    )
-  );
+    );
 
-  res.status(200).json({
-    status: "success",
-    data: {
-      approvedCount: applications.length,
-    },
-  });
+    res.status(200).json({
+      status: "success",
+      data: {
+        approvedCount: applications.length,
+      },
+    });
+  } catch (error) {
+    return next(new CustomError("Failed to send approval emails", 500));
+  }
 });
 
 export const approveOneApplication = catchAsync(async (req, res, next) => {
@@ -248,36 +242,42 @@ export const approveOneApplication = catchAsync(async (req, res, next) => {
     return next(new CustomError("No application found with this ID", 404));
   }
 
-  if (!application.siteId.engineerId.equals(req.user._id)) {
+  if (application.siteId.engineerId.toString() !== req.user._id.toString()) {
     return next(
-      new CustomError("You are not authorized to approve this application", 403)
+      new CustomError("You are not authorized to approve applications", 403)
     );
   }
 
   // Update the status to accepted
   application.status = "accepted";
-  await application.save();
 
-  // Send email notification
-  await sendEmail({
-    email: application.userId.email,
-    subject: "Application Approved",
-    message: `Dear ${application.userId.name}, your application for site "${application.siteId.site_title}" has been approved.`,
-  });
+  try {
+    await Email(application.userId, application.siteId).sendApproved();
 
-  res.status(200).json({
-    status: "success",
-    data: {
-      application,
-    },
-  });
+    await application.save();
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        application,
+      },
+    });
+  } catch (error) {
+    return next(new CustomError("Failed to send approval email", 500));
+  }
 });
 
-export const conditionalAccess = (req, res, next) => {
-  if (req.params.siteId) {
-    return restrictTo("admin", "engineer")(req, res, next);
-  }
-  return restrictTo("admin")(req, res, next);
+export const conditionalAccess = (allowedForApplication = []) => {
+  return (req, res, next) => {
+    if (req.params.siteId) {
+      return restrictTo("admin", "engineer", ...allowedForApplication)(
+        req,
+        res,
+        next
+      );
+    }
+    return restrictTo("admin")(req, res, next);
+  };
 };
 
 export const handleGetApplications = (req, res, next) => {

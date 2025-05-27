@@ -53,13 +53,25 @@ export const createSite = catchAsync(async (req, res, next) => {
 });
 
 export const updateSite = catchAsync(async (req, res, next) => {
+  const selectedSite = await Site.findById(req.params.id);
+  if (!selectedSite) {
+    return next(new CustomError("No site found with that ID", 404));
+  }
+
+  const isSiteEngineer = selectedSite.engineerId.equals(req.user._id);
+  const isAdmin = req.user.role === "admin";
+
+  if (!isSiteEngineer && !isAdmin) {
+    return next(
+      new CustomError("You are not authorized to update this site", 403)
+    );
+  }
+
   const site = await Site.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
   });
-  if (!site) {
-    return next(new CustomError("No site found with that ID", 404));
-  }
+
   res.status(200).json({
     status: "success",
     data: {
@@ -85,10 +97,22 @@ export const getSiteByEngineer = catchAsync(async (req, res, next) => {
 });
 
 export const deleteSite = catchAsync(async (req, res, next) => {
-  const site = await Site.findByIdAndDelete(req.params.id);
-  if (!site) {
+  const selectedSite = await Site.findById(req.params.id);
+  if (!selectedSite) {
     return next(new CustomError("No site found with that ID", 404));
   }
+
+  const isSiteEngineer = selectedSite.engineerId.equals(req.user._id);
+  const isAdmin = req.user.role === "admin";
+
+  if (!isSiteEngineer && !isAdmin) {
+    return next(
+      new CustomError("You are not authorized to delete this site", 403)
+    );
+  }
+
+  await Site.findByIdAndDelete(req.params.id);
+
   res.status(204).json({
     status: "success",
     data: null,
