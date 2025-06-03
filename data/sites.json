@@ -1,47 +1,71 @@
 [
   {
-    "site_id": 1,
-    "engineer_name": "Eng. John Mrema",
-    "site_title": "Foundation Work - Residential Building",
-    "location": "Arusha, Tanzania",
-    "required_handymen": 5,
-    "skills_required": ["Masonry", "Digging", "Steel Fixing"],
+    "engineerName": "Eng. John Mrema",
+    "siteTitle": "Foundation Work - Residential Building",
+    "siteAddress": {
+      "street": "Olasiti",
+      "city": "Arusha",
+      "region": "Arusha",
+      "country": "Tanzania"
+    },
+    "coordinates": {
+      "coordinates": [-3.359, 36.6473]
+    },
+    "engineerId": "682b797b018b65e2a0a4508d",
+    "requiredHandymen": 5,
+    "skillsRequired": ["Masonry", "Digging", "Steel Fixing"],
     "dates": {
       "start": "2025-05-10",
       "end": "2025-05-25"
     },
-    "payment_per_day": "20000 TZS",
+    "paymentPerDay": "20000 TZS",
     "description": "Looking for skilled handymen to assist with foundation digging, masonry, and steel fixing. The project will last for two weeks.",
-    "posted_at": "2025-05-04T09:00:00Z"
+    "postedAt": "2025-05-04T09:00:00Z"
   },
   {
-    "site_id": 2,
-    "engineer_name": "Eng. Neema Charles",
-    "site_title": "Roofing Phase - School Project",
-    "location": "Dodoma, Tanzania",
-    "required_handymen": 8,
-    "skills_required": ["Carpentry", "Roof Framing"],
+    "engineerName": "Eng. Neema Charles",
+    "siteTitle": "Roofing Phase - School Project",
+    "siteAddress": {
+      "street": "Olasiti Kati",
+      "city": "Dodoma",
+      "region": "Dodoma",
+      "country": "Tanzania"
+    },
+    "engineerId": "682b792d018b65e2a0a45088",
+    "coordinates": {
+      "coordinates": [-6.1732, 35.7525]
+    },
+    "requiredHandymen": 8,
+    "skillsRequired": ["Carpentry", "Roof Framing"],
     "dates": {
       "start": "2025-05-15",
       "end": "2025-06-01"
     },
-    "payment_per_day": "25000 TZS",
+    "paymentPerDay": "25000 TZS",
     "description": "Urgently need experienced carpenters to assist with roofing a classroom block.",
-    "posted_at": "2025-05-03T14:30:00Z"
+    "postedAt": "2025-05-03T14:30:00Z"
   },
   {
-    "site_id": 3,
-    "engineer_name": "Eng. Peter Mwakyembe",
-    "site_title": "Finishing Works - Office Building",
-    "location": "Dar es Salaam, Tanzania",
-    "required_handymen": 6,
-    "skills_required": ["Plastering", "Painting", "Tiling"],
+    "engineerName": "Eng. Peter Mwakyembe",
+    "siteTitle": "Finishing Works - Office Building",
+    "siteAddress": {
+      "street": "Kimara",
+      "city": "Ubungo",
+      "region": "Dar-es-salaam",
+      "country": "Tanzania"
+    },
+    "engineerId": "682b797b018b65e2a0a4508d",
+    "coordinates": {
+      "coordinates": [-6.7924, 39.2083]
+    },
+    "requiredHandymen": 6,
+    "skillsRequired": ["Plastering", "Painting", "Tiling"],
     "dates": {
       "start": "2025-05-20",
       "end": "2025-06-05"
     },
-    "payment_per_day": "22000 TZS",
+    "paymentPerDay": "22000 TZS",
     "description": "Need reliable and detail-oriented workers for finishing works including plastering and painting.",
-    "posted_at": "2025-05-02T11:15:00Z"
+    "postedAt": "2025-05-02T11:15:00Z"
   }
 ]

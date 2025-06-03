@@ -6,11 +6,11 @@ import {
   deleteApplication,
   conditionalAccess,
   handleGetApplications,
-  handleGetApplicationById,
   getMyApplications,
   getMyApplicationById,
   approveAllApplications,
   approveOneApplication,
+  getApplicationById,
 } from "../controllers/applicationController.js";
 import { protect, restrictTo } from "../controllers/authController.js";
 
@@ -38,7 +38,7 @@ applicationRouter.patch(
 );
 
 applicationRouter.patch(
-  "/approveAll/:siteId",
+  "/approveAll",
   protect,
   restrictTo("engineer"),
   approveAllApplications
@@ -56,7 +56,7 @@ applicationRouter
 
 applicationRouter
   .route("/:id")
-  .get(protect, conditionalAccess(), handleGetApplicationById)
+  .get(protect, conditionalAccess(), getApplicationById)
   .patch(protect, restrictTo("user"), updateApplication)
   .delete(protect, restrictTo("admin", "user"), deleteApplication);
 

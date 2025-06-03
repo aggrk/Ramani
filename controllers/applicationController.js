@@ -286,10 +286,3 @@ export const handleGetApplications = (req, res, next) => {
   }
   return getAllApplications(req, res, next);
 };
-
-export const handleGetApplicationById = (req, res, next) => {
-  if (req.params.siteId) {
-    return getApplicationsBySiteId(req, res, next);
-  }
-  return getApplicationById(req, res, next);
-};

@@ -13,13 +13,51 @@ export class Email {
     // 1) Render HTML based on a pug template
     let html;
     if (template === "welcome") {
-      html = `<div style="font-family: Arial, sans-serif; background-color: #fdfaf6; padding: 30px;">
-  <div style="max-width: 600px; background-color: #ffffff; padding: 20px; border-radius: 8px; margin: auto; border: 1px solid #d2b48c;">
-    <h2 style="color: #556b2f;">Welcome to Ramani, ${this.firstName}!</h2>
-    <p style="color: #333;">We're excited to have you join us. Please confirm your email address to activate your account:</p>
-    <a href="${this.url}" style="display: inline-block; background-color: #556b2f; color: white; padding: 12px 20px; border-radius: 4px; text-decoration: none; margin-top: 20px;">Activate My Account</a>
-    <p style="margin-top: 30px; color: #666;">If you didn’t create an account, please ignore this email.</p>
-    <p style="color: #444;">Thanks,<br><strong>The Ramani Team</strong></p>
+      html = `<div style="font-family: 'Arial', sans-serif; background-color: #F8F8F8; padding: 20px 10px; min-width: 100%;">
+  <!-- Main Container -->
+  <div style="max-width: 100%; width: 100%; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin: 0 auto;">
+    <!-- Header Banner (Mobile-optimized padding) -->
+    <div style="background-color: #B22222; padding: 16px 10px; text-align: center;">
+      <h1 style="color: white; margin: 0; font-size: 20px; font-weight: 600; line-height: 1.3;">RAMANI</h1>
+    </div>
+    
+    <!-- Content Area (Stacked for mobile) -->
+    <div style="padding: 20px;">
+      <h2 style="color: #1A1A1A; font-size: 18px; margin-top: 0; margin-bottom: 16px; line-height: 1.4;">
+        Welcome to Ramani, ${this.firstName}!
+      </h2>
+      
+      <p style="color: #333333; font-size: 14px; line-height: 1.5; margin-bottom: 20px;">
+        We're excited to have you join Tanzania's construction network. Confirm your email to activate your account:
+      </p>
+      
+      <!-- CTA Button (Full-width on mobile) -->
+      <div style="text-align: center; margin: 25px 0;">
+        <a href="${
+          this.url
+        }" style="display: inline-block; width: 100%; max-width: 240px; background-color: #B22222; color: white; padding: 12px 20px; border-radius: 4px; text-decoration: none; font-weight: 600; font-size: 15px; box-shadow: 0 2px 4px rgba(178, 34, 34, 0.2);">
+          Activate My Account
+        </a>
+      </div>
+      
+      <!-- Secondary Text (Adjusted spacing) -->
+      <p style="color: #666666; font-size: 13px; line-height: 1.5; margin-bottom: 25px;">
+        Didn’t create an account? Ignore this email or contact <a href="mailto:support@ramani.co.tz" style="color: #556B2F; text-decoration: underline;">support@ramani.co.tz</a>.
+      </p>
+      
+      <!-- Footer (Tighter padding) -->
+      <div style="border-top: 1px solid #D2B48C; padding-top: 16px;">
+        <p style="color: #444444; font-size: 13px; margin: 4px 0;">
+          Thanks for building with us,
+        </p>
+        <p style="color: #1A1A1A; font-size: 15px; font-weight: 600; margin: 4px 0 8px;">
+          The Ramani Team
+        </p>
+        <p style="color: #556B2F; font-size: 11px; margin-top: 16px;">
+          © ${new Date().getFullYear()} Ramani. All rights reserved.
+        </p>
+      </div>
+    </div>
   </div>
 </div>
 

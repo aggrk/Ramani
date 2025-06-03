@@ -20,17 +20,15 @@ const createSendToken = (user, statusCode, res) => {
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
     ),
     httpOnly: true,
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    secure: process.env.NODE_ENV === "production" || true,
   };
-  if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
 
   res.cookie("jwt", token, cookieOptions);
 
   res.status(statusCode).json({
     status: "success",
     token,
-    // data: {
-    //   user,
-    // },
   });
 };
 
@@ -43,6 +41,10 @@ export const signup = catchAsync(async (req, res, next) => {
     confirmPassword: req.body.confirmPassword,
     role: req.body.role,
   };
+  const existingUser = await User.findOne({ email: userData.email });
+  if (existingUser) {
+    return next(new CustomError("A user with this email already exists", 400));
+  }
 
   const newUser = new User(userData);
 
@@ -178,6 +180,11 @@ export const protect = catchAsync(async (req, res, next) => {
   ) {
     token = req.headers.authorization.split(" ")[1];
   }
+
+  if (!token && req.cookies.jwt) {
+    token = req.cookies.jwt;
+  }
+
   if (!token) {
     return next(new CustomError("You are not logged in! Please log in", 401));
   }
