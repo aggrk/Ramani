@@ -116,11 +116,6 @@ export const resendVerificationEmail = catchAsync(async (req, res, next) => {
   )}/api/v1/users/verifyEmail/${token}`;
   const message = `Welcome to Ramani, ${user.name}! Please verify your email by clicking on the following link: ${verificationURL}`;
   try {
-    // await sendEmail({
-    //   email: user.email,
-    //   subject: "Verify Your Email!",
-    //   message,
-    // });
     await new Email(user, verificationURL).sendWelcome();
     res.status(200).json({
       status: "success",
@@ -172,7 +167,7 @@ export const logout = (req, res) => {
 };
 
 export const protect = catchAsync(async (req, res, next) => {
-  // 1) Getting token and check of it's there
+  // 1) Getting token and check if it's there
   let token;
   if (
     req.headers.authorization &&

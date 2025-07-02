@@ -41,6 +41,7 @@ export const getMyApplications = catchAsync(async (req, res, next) => {
     userId: req.user._id,
     deleted: false,
   }).populate("siteId");
+
   if (!applications || applications.length === 0) {
     return next(new CustomError("No applications found for this user", 404));
   }

@@ -62,12 +62,12 @@ export const registerHardware = catchAsync(async (req, res, next) => {
 });
 
 export const getAllHardware = catchAsync(async (req, res, next) => {
-  const hardwareRegistrations = await HardwareRegistration.find();
+  const hardware = await HardwareRegistration.find({ status: "verified" });
   res.status(200).json({
     status: "success",
-    results: hardwareRegistrations.length,
+    results: hardware.length,
     data: {
-      hardwareRegistrations,
+      hardware,
     },
   });
 });

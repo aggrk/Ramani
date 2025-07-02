@@ -31,7 +31,8 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(express.json());
+app.use(express.json({ limit: "100kb" }));
+app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/v1/users", userRouter);
