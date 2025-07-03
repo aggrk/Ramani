@@ -24,31 +24,51 @@ export const uploadProductImages = upload.fields([
 ]);
 
 export const resizeProductImages = async (req, res, next) => {
-  if (!req.files.imageCover || !req.files.images) return next();
+  if (!req.files) return next();
+
   // 1) Cover image
-  req.body.imageCover = `product-${
-    req.params.productId
-  }-${Date.now()}-cover.jpeg`;
-  await sharp(req.files.imageCover[0].buffer)
-    .resize(2000, 1333)
-    .toFormat("jpeg")
-    .jpeg({ quality: 90 })
-    .toFile(`public/img/products/${req.body.imageCover}`);
-  // 2) Images
-  req.body.images = [];
-  await Promise.all(
-    req.files.images.map(async (file, i) => {
-      const filename = `product-${req.params.productId}-${Date.now()}-${
-        i + 1
-      }.jpeg`;
-      await sharp(file.buffer)
+  if (req.files.imageCover) {
+    const coverFilename = `product-${
+      req.params.hardwareId
+    }-${Date.now()}-cover.jpeg`;
+
+    try {
+      await sharp(req.files.imageCover[0].buffer)
         .resize(2000, 1333)
         .toFormat("jpeg")
         .jpeg({ quality: 90 })
-        .toFile(`public/img/products/${filename}`);
-      req.body.images.push(filename);
-    })
-  );
+        .toFile(`public/img/products/${coverFilename}`);
+      req.body.imageCover = coverFilename;
+    } catch (error) {
+      return next(
+        new CustomError(`Failed to process cover image: ${error.message}`, 500)
+      );
+    }
+  }
+
+  if (req.files.images) {
+    // 2) Images
+    req.body.images = [];
+    try {
+      await Promise.all(
+        req.files.images.map(async (file, i) => {
+          const filename = `product-${req.params.hardwareId}-${Date.now()}-${
+            i + 1
+          }.jpeg`;
+          await sharp(file.buffer)
+            .resize(2000, 1333)
+            .toFormat("jpeg")
+            .jpeg({ quality: 90 })
+            .toFile(`public/img/products/${filename}`);
+          req.body.images.push(filename);
+        })
+      );
+    } catch (error) {
+      return next(
+        new CustomError(`Failed to process cover image: ${error.message}`, 500)
+      );
+    }
+  }
   next();
 };
 
