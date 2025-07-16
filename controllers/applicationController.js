@@ -181,14 +181,16 @@ export const deleteApplication = catchAsync(async (req, res, next) => {
     }
   );
 
-  if (!application || application.deleted) {
+  if (!application) {
     return next(new CustomError("No application found with this ID", 404));
   }
 
-  res.status(204).json({
-    status: "success",
-    data: null,
-  });
+  if (application.deleted) {
+    res.status(204).json({
+      status: "success",
+      data: null,
+    });
+  }
 });
 
 export const approveAllApplications = catchAsync(async (req, res, next) => {

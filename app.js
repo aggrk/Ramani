@@ -10,6 +10,11 @@ import cartsRouter from "./routes/productsCartRoutes.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { checkoutRouter } from "./routes/checkoutRoutes.js";
+import { rateLimit } from "express-rate-limit";
+import helmet from "helmet";
+import mongoSanitize from "express-mongo-sanitize";
+import { sanitizeObjects } from "./utils/sanitizeObjects.js";
+import hpp from "hpp";
 
 export const app = express();
 
@@ -26,14 +31,52 @@ app.use(cors(corsOptions));
 app.options(/.*/, cors());
 app.use(cookieParser());
 
+app.use(helmet({ crossOriginResourcePolicy: false }));
+
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Credentials", true);
   next();
 });
 
 app.use(express.json({ limit: "100kb" }));
-app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
+
+app.use((req, res, next) => {
+  if (req.body) mongoSanitize.sanitize(req.body);
+  if (req.params) mongoSanitize.sanitize(req.params);
+  if (req.query) {
+    mongoSanitize.sanitize(req.query);
+  }
+  next();
+});
+
+app.use((req, res, next) => {
+  sanitizeObjects(req.body);
+  next();
+});
+
+app.use(express.static("public"));
+const limiter = rateLimit({
+  limit: 100,
+  windowMs: 60 * 60 * 1000,
+  message: "Too many requests, try again after an hour!",
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use("/api", limiter);
+
+app.use(
+  hpp({
+    whitelist: [
+      "duration",
+      "ratingsQuantity",
+      "price",
+      "difficulty",
+      "ratingsAverage",
+    ],
+  })
+);
 
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/sites", siteRouter);

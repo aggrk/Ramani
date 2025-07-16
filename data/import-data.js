@@ -2,13 +2,16 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import { readFileSync } from "fs";
 import Site from "../models/sitesModel.js";
+import path from "node:path";
 
 dotenv.config({ path: "./config.env" });
 const DB = process.env.DATABASE;
 
 mongoose.connect(DB).then(() => console.log("DB connection successful!"));
 
-const sites = readFileSync("./data/sites.json", "utf-8");
+const dataFile = path.join(import.meta.dirname, "sites.json");
+
+const sites = readFileSync(dataFile, "utf-8");
 
 const importData = async () => {
   try {

@@ -46,6 +46,8 @@ export const signup = catchAsync(async (req, res, next) => {
     return next(new CustomError("A user with this email already exists", 400));
   }
 
+  console.log(userData.email);
+
   const newUser = new User(userData);
 
   // 1) Generate verification token
