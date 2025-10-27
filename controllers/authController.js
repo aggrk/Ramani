@@ -296,7 +296,7 @@ export const updateMyPassword = catchAsync(async (req, res, next) => {
     return next(new CustomError("Your current password is wrong", 401));
   }
 
-  if (req.body.password === req.body.currentPassword) {
+  if (req.body.newPassword === req.body.currentPassword) {
     return next(
       new CustomError(
         "New password must be different from current password",
@@ -305,7 +305,7 @@ export const updateMyPassword = catchAsync(async (req, res, next) => {
     );
   }
   // 3) If so, update password
-  user.password = req.body.password;
+  user.password = req.body.newPassword;
   user.confirmPassword = req.body.confirmPassword;
   await user.save();
   // 4) Log user in, send JWT

@@ -25,7 +25,9 @@ export const addToCart = catchAsync(async (req, res, next) => {
 });
 
 export const getMyCarts = catchAsync(async (req, res, next) => {
-  const products = await ProductsCart.find({ userId: req.user._id });
+  const products = await ProductsCart.find({ userId: req.user._id }).populate(
+    "productId"
+  );
 
   if (!products)
     return next(new CustomError("No products in carts for this user", 404));

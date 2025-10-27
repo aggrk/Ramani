@@ -57,7 +57,7 @@ app.use((req, res, next) => {
 
 app.use(express.static("public"));
 const limiter = rateLimit({
-  limit: 100,
+  limit: 200,
   windowMs: 60 * 60 * 1000,
   message: "Too many requests, try again after an hour!",
   standardHeaders: true,
