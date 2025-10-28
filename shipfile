@@ -1,3 +1,13 @@
-script: npm install && npm run build
+version: "1.0"
 
-run: HOST=0.0.0.0 PORT=8000 node --watch server.js
+stack: nodejs
+
+build:
+  script: npm install && npm run build
+
+run:
+  command: HOST=0.0.0.0 PORT=8000 node --watch server.js
+  port: 8000
+# script: npm install && npm run build
+
+# run: HOST=0.0.0.0 PORT=8000 node --watch server.js
