@@ -1,0 +1,11 @@
+version: "1.0"
+stack: nodejs
+
+build:
+  command: npm install && npm run build
+
+run:
+  command: npm start
+
+env:
+  NODE_ENV: production
