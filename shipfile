@@ -1,3 +1,6 @@
 script: npm install
 
-run: HOST=0.0.0.0 PORT=8000 node --watch server.js
+run: PORT=8000 node --watch server.js
+env:
+  HOST: 0.0.0.0
+  NODE_ENV: production
