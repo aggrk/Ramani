@@ -129,6 +129,7 @@ export const createApplication = catchAsync(async (req, res, next) => {
     phone: req.user.phone,
     siteId: req.params.siteId,
     userId: req.user ? req.user._id : null,
+    engineerId: site.engineerId,
   });
 
   res.status(201).json({
@@ -255,7 +256,7 @@ export const approveOneApplication = catchAsync(async (req, res, next) => {
   application.status = "accepted";
 
   try {
-    await Email(application.userId, application.siteId).sendApproved();
+    await new Email(application.userId, application.siteId).sendApproved();
 
     await application.save();
 
@@ -289,3 +290,20 @@ export const handleGetApplications = (req, res, next) => {
   }
   return getAllApplications(req, res, next);
 };
+
+export const getApplicationsByEngineerId = catchAsync(
+  async (req, res, next) => {
+    const applications = await Application.find({
+      engineerId: req.user._id,
+      deleted: false,
+    }).populate("siteId");
+
+    res.status(200).json({
+      status: "success",
+      results: applications.length,
+      data: {
+        applications,
+      },
+    });
+  }
+);

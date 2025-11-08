@@ -37,6 +37,11 @@ const applicationSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    engineerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     status: {
       type: String,
       enum: {

@@ -11,6 +11,7 @@ import {
   approveAllApplications,
   approveOneApplication,
   getApplicationById,
+  getApplicationsByEngineerId,
 } from "../controllers/applicationController.js";
 import { protect, restrictTo } from "../controllers/authController.js";
 
@@ -28,6 +29,13 @@ applicationRouter.get(
   protect,
   restrictTo("user"),
   getMyApplicationById
+);
+
+applicationRouter.get(
+  "/my",
+  protect,
+  restrictTo("engineer"),
+  getApplicationsByEngineerId
 );
 
 applicationRouter.patch(
