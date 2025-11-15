@@ -252,7 +252,6 @@ export const approveOneApplication = catchAsync(async (req, res, next) => {
     );
   }
 
-  // Update the status to accepted
   application.status = "accepted";
 
   try {
