@@ -76,7 +76,7 @@ export const initiateAzamPayPayment = async ({
   if (typeof amount !== "number" || amount <= 0) {
     throw new CustomError("Amount must be a positive number", 400);
   }
-  const validCurrencies = ["TZS", "USD"]; // Adjust based on API docs
+  const validCurrencies = ["TZS", "USD"];
   if (!validCurrencies.includes(currency)) {
     throw new CustomError("Invalid currency", 400);
   }

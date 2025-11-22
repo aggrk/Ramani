@@ -1,4 +1,5 @@
 import { User } from "../models/usersModel.js";
+import APIFeatures from "../utils/apiFeatures.js";
 import { CustomError } from "../utils/appError.js";
 import catchAsync from "../utils/catchAsync.js";
 import multer from "multer";
@@ -55,7 +56,13 @@ export const createUser = catchAsync(async (req, res, next) => {
 });
 
 export const getAllUsers = catchAsync(async (req, res, next) => {
-  const users = await User.find();
+  const features = new APIFeatures(User.find(), req.query)
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
+
+  const users = await features.query;
 
   res.status(200).json({
     status: "success",
