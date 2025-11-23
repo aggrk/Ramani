@@ -15,6 +15,7 @@ import helmet from "helmet";
 import mongoSanitize from "express-mongo-sanitize";
 import { sanitizeObjects } from "./utils/sanitizeObjects.js";
 import hpp from "hpp";
+import { fileRouter } from "./routes/fileRoutes.js";
 
 export const app = express();
 
@@ -89,6 +90,7 @@ app.use("/api/v1/hardware", hardwareRouter);
 app.use("/api/v1/products", productsRouter);
 app.use("/api/v1/carts", cartsRouter);
 app.use("/api/v1/checkouts", checkoutRouter);
+app.use("/api/v1/files", fileRouter);
 
 app.all(/.*/, (req, res, next) => {
   const err = new CustomError(

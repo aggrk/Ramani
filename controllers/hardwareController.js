@@ -3,6 +3,7 @@ import HardwareRegistration from "../models/hardwareRegistrationModel.js";
 import { CustomError } from "../utils/appError.js";
 import multer from "multer";
 import { Email } from "../utils/email.js";
+import APIFeatures from "../utils/apiFeatures.js";
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -62,7 +63,31 @@ export const registerHardware = catchAsync(async (req, res, next) => {
 });
 
 export const getAllHardware = catchAsync(async (req, res, next) => {
-  const hardware = await HardwareRegistration.find({ status: "verified" });
+  const features = new APIFeatures(
+    HardwareRegistration.find({ status: "verified" }),
+    req.query
+  )
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
+  const hardware = await features.query;
+  res.status(200).json({
+    status: "success",
+    results: hardware.length,
+    data: {
+      hardware,
+    },
+  });
+});
+
+export const getAllHardwareForAdmin = catchAsync(async (req, res, next) => {
+  const features = new APIFeatures(HardwareRegistration.find(), req.query)
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
+  const hardware = await features.query;
   res.status(200).json({
     status: "success",
     results: hardware.length,

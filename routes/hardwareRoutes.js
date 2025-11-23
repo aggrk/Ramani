@@ -3,6 +3,7 @@ import {
   approveHardware,
   deleteHardware,
   getAllHardware,
+  getAllHardwareForAdmin,
   getHardwareById,
   getMyHardware,
   registerHardware,
@@ -15,6 +16,13 @@ import productsRouter from "./hadwareProductRoutes.js";
 const hardwareRouter = express.Router();
 
 hardwareRouter.use("/:hardwareId/products", productsRouter);
+
+hardwareRouter.get(
+  "/getAllHardwareForAdmin",
+  protect,
+  restrictTo("admin"),
+  getAllHardwareForAdmin
+);
 
 hardwareRouter.get(
   "/myHardware",
