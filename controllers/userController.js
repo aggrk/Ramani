@@ -99,9 +99,12 @@ export const updateUser = catchAsync(async (req, res, next) => {
 });
 
 export const deleteUser = catchAsync(async (req, res, next) => {
-  const user = await User.findByIdAndDelete(req.params.id);
+  const user = await User.findOneAndDelete({
+    _id: req.params.id,
+    $or: [{ status: "inactive" }, { deletedAt: { $exists: true, $ne: null } }],
+  });
   if (!user) {
-    return next(new CustomError("No user found with that ID", 404));
+    return next(new CustomError("User cannot be deleted", 404));
   }
   res.status(204).json({
     status: "success",

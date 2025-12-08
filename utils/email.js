@@ -94,7 +94,7 @@ export class Email {
       html = `<div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 30px;">
   <div style="max-width: 600px; background-color: #ffffff; padding: 20px; border-radius: 8px; margin: auto;">
     <h2 style="color: #28a745;">Congratulations, ${this.firstName}!</h2>
-    <p>We’re pleased to inform you that your application for the hardware ${this.url.name} has been approved. Please login to you account to add some products.</p>
+    <p>We're pleased to inform you that your application for the hardware <span style="font-weight:700;">${this.url.name} </span>has been approved. Please login to your account to add some products.</p>
     <p style="margin-top: 30px;">If you have any questions, feel free to reply to this email.</p>
     <p>Warm regards,<br><strong>Ramani Team</strong></p>
   </div>
