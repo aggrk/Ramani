@@ -279,7 +279,7 @@ export const conditionalAccess = (allowedForApplication = []) => {
         next
       );
     }
-    return restrictTo("admin")(req, res, next);
+    return restrictTo("admin", "user")(req, res, next);
   };
 };
 
