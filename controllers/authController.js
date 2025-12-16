@@ -159,11 +159,10 @@ export const login = catchAsync(async (req, res, next) => {
 });
 
 export const logout = (req, res) => {
-  res.clearCookie("jwt", {
+  res.cookie("jwt", "loggedout", {
+    expires: new Date(Date.now() + 10 * 1000),
     httpOnly: true,
-    sameSite: "strict",
   });
-
   res.status(200).json({
     status: "success",
   });
@@ -183,7 +182,7 @@ export const protect = catchAsync(async (req, res, next) => {
     token = req.cookies.jwt;
   }
 
-  if (!token) {
+  if (!token || token === "loggedout") {
     return next(new CustomError("You are not logged in! Please log in", 401));
   }
   // 2) Verification token
