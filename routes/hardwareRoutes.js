@@ -11,7 +11,7 @@ import {
   upload,
 } from "../controllers/hardwareController.js";
 import { protect, restrictTo } from "../controllers/authController.js";
-import productsRouter from "./hadwareProductRoutes.js";
+import productsRouter from "./hardwareProductRoutes.js";
 
 const hardwareRouter = express.Router();
 
@@ -21,21 +21,21 @@ hardwareRouter.get(
   "/getAllHardwareForAdmin",
   protect,
   restrictTo("admin"),
-  getAllHardwareForAdmin
+  getAllHardwareForAdmin,
 );
 
 hardwareRouter.get(
   "/myHardware",
   protect,
   restrictTo("hardware dealer"),
-  getMyHardware
+  getMyHardware,
 );
 
 hardwareRouter.patch(
   "/approveHardware/:hardwareId",
   protect,
   restrictTo("admin"),
-  approveHardware
+  approveHardware,
 );
 
 hardwareRouter
@@ -50,7 +50,7 @@ hardwareRouter
     protect,
     restrictTo("admin", "hardware dealer"),
     upload,
-    updateHardware
+    updateHardware,
   )
   .delete(protect, restrictTo("admin", "hardware dealer"), deleteHardware);
 
