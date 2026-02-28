@@ -4,7 +4,7 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "npm start": "node --watch server.js"
+    "start": "node --watch server.js"
   },
   "repository": {
     "type": "git",
